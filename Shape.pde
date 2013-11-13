@@ -41,8 +41,6 @@ class Shape {
   }
   
   void pushDown(){
-    println("Move to right");
-    //boolean[][] ret = ret_; 
     boolean[][] ret = sSpots;
     for (int x=0;x<ret.length;++x) {
       for (int y=ret.length-1;y>=0;--y) {
@@ -55,8 +53,6 @@ class Shape {
   }
   
   void pushLeft(){
-    println("Move to left");
-    //boolean[][] ret = ret_; 
     boolean[][] ret = sSpots;
     for (int x=0;x<ret.length;++x) {
       for (int y=0;y<ret.length;++y) {
@@ -69,8 +65,6 @@ class Shape {
   }
   
   void pushRight(){
-    println("Move to right");
-    //boolean[][] ret = ret_; 
     boolean[][] ret = sSpots;
     for (int x=ret.length-1;x>=0;--x) {
       for (int y=0;y<ret.length;++y) {

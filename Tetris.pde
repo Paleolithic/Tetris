@@ -8,15 +8,22 @@ Shape next;
 
 int savedTime;
 int totalTime = 300;
+int tempTime  = totalTime;
 int offset_x, offset_y;
 int iterations;
+
 int level;
+int score;
 
 boolean initial;
 final int MIN_X = 0;
 final int MIN_Y = 0;
 final int MAX_X = board.gColumns -1;
 final int MAX_Y = board.gRows - 1;
+
+boolean paused = false;
+
+ArrayList<Integer> currActiveColumns;
 
 void setup(){
   size(425,600);
@@ -26,6 +33,7 @@ void setup(){
   
   initial = true;
   
+  //Create shapes, add them to the array, and make new shape
   shapes = new Shape[7];
   shapes[0]  = new Shape(4, new int[] {0, 4, 8, 12}, color(255,172,64));//I
   shapes[1] = new Shape(3, new int[] {0, 3, 6, 7}, color(232, 58, 142));//L
@@ -38,56 +46,104 @@ void setup(){
 }
 
 void newShape(){
+  //Set offset to appropriate values, positions shape
   offset_x = board.gColumns/2;
   offset_y = 0;
   
+  //If initial setup, sets current and next shape to random shape from array
   if(initial){  
-    current = shapes[(int)random(0, 6)];
-    next = shapes[(int)random(0, 6)];
+    current = shapes[(int)random(0, 7)];
+    next = shapes[(int)random(0, 7)];
     initial = false;
-  } else{
+  } 
+  //Otherwise it sets the current to the next, and randomizes the next
+  //This is the way of going to the "next" shape, and setting up
+  //the next shape
+  else{
     current = next;
-    next = shapes[(int)random(0, 6)];
+    next = shapes[(int)random(0, 7)];
   }
-  //current = shapes[0];
 }
 
 void draw(){
+  //Creates background and level information text
   fill(0);
   rect(0, 0, width, height);
   fill(255);
-  text("Level " + level, width - 50, height - 10);
+  textSize(14);
+  text("Level: " + level, width - 75, height - 30);
+  text("Score: " + score, width - 75, height - 10);
+  //Displays the board grid and the preview grid  
+  board.display();
+  preview.display(); 
   
+  //If not paused, allow for gameplay, otherwise pause gameplay
+  if(!paused)
+    play();
+  else
+    pause();
+}
+
+void play(){
+  //Waits for offset time for shape to move down
   if(millis() > savedTime+totalTime){
+    //Pushes shape down within own matrix if possible, otherwise
+    //adds 1 to the y offset, to push it down the board
     if(current.canPushDown())
       current.pushDown();
     else
       ++offset_y;
     
     savedTime = millis();
+    
+    //Adds one to the iterations count, for moving up in levels
     iterations++;
   } 
   
+  //Level decision, goes to next level every 100 iterations*level number
+  //Subtracts time between each move down the board, making shapes 
+  //move more quickly. Since they move more quickly, I made the
+  //number of iterations necessary to go up a level increase
+  //to make each level more or less take the same amount of time
   if(iterations > 100*level && totalTime > 25){
     iterations = 0;
     totalTime -= 25;
-    level++;  
+    level++;
+    score += level*200;  
   }
   
+  //If the shape isn't at the bottom or hitting another shape
   if(offset_y <= MAX_Y - (current.rows -1) && board.isValidSpotBelow(-1)){
+    //Whipes board and preview clean, 
     setFalse(board);
     setFalse(preview);
+    //Then updates the shapes position
     mergeMatrixes(offset_x, offset_y, current, board);
     mergeMatrixes(0, 0, next, preview);
   }
+  //If the shape IS at the bottom or hitting another
   else{
+    //Moves the shape to the inactive array
+    totalTime = tempTime;
     board.toInactive();
-    board.rRemove(board.removeRowNum());
+    //Checks 
+    if(board.removeRowNum() != null){
+      ArrayList<Integer> rowsToRemove = board.removeRowNum();
+      
+      score += rowsToRemove.size()*100;
+      board.rRemove(rowsToRemove);
+    }
     newShape();
-  }
-  
-  board.display(current.c);
-  preview.display(current.c); 
+  }  
+}
+
+//Pause game shows PAUSED screen
+void pause(){
+  fill(175, 175);
+  rect(0,height/2 - 50, width, 60);
+  fill(0);
+  textSize(24);
+  text("PAUSED", width/2 - 45, height/2 - 10);
 }
 
 void setFalse(Grid grid){
@@ -122,13 +178,16 @@ void keyPressed(){
       --offset_x;
   
   if(key==' '){
-    println("Go to last valid row");
-    /*
-    int bottomValidRow = MAX_Y;
-    while(!board.isValidSpotBelow(bottomValidRow))
-      bottomValidRow++;
-    println(bottomValidRow + " " + MAX_Y + " " + (MAX_Y - bottomValidRow));
-    offset_y = MAX_Y - bottomValidRow;
-    */
-  }    
+    tempTime = totalTime;
+    totalTime = 0;
+  }
+  
+  if(key == ESC)
+    key = 0;
+  
+  if(key == 0)
+    if(paused)
+      paused = false;
+    else
+      paused = true;
 }

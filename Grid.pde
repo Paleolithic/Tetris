@@ -18,7 +18,8 @@ class Grid {
     spotColor = new color[gColumns][gRows];
   }
 
-  void display(color c_) {
+  void display() {
+    println(totalTime);
     createGrid();
   }
 
@@ -40,42 +41,34 @@ class Grid {
   }
 
   boolean isValidSpotBelow(int yOff) {
-    for (int i = 0; i < gColumns; i++) {
-      for (int j = gRows-2; j >=0 ; j--) {
-        //println("j: " + j + " yOff: " + yOff);
-        if (inactiveSpots[i][j-yOff] == true && activeSpots[i][j] == true) {
+    for (int i = 0; i < gColumns; i++)
+      for (int j = gRows-2; j >=0 ; j--)
+        if (inactiveSpots[i][j-yOff] == true && activeSpots[i][j] == true)
           return false;
-        }
-      }
-    }
+
     return true;
   }
 
   boolean isValidSpotLeft() {
-    for (int i = 1; i < gColumns; i++) {
-      for (int j = 0; j < gRows; j++) {
-        if (inactiveSpots[i-1][j] == true && activeSpots[i][j] == true) {
+    for (int i = 1; i < gColumns; i++)
+      for (int j = 0; j < gRows; j++) 
+        if (inactiveSpots[i-1][j] == true && activeSpots[i][j] == true) 
           return false;
-        }
-      }
-    }
+        
     return true;
   }
 
   boolean isValidSpotRight() {
-    for (int i = 0; i < gColumns -1; i++) {
-      for (int j = 0; j < gRows; j++) {
-        if (inactiveSpots[i+1][j] == true && activeSpots[i][j] == true) {
+    for (int i = 0; i < gColumns -1; i++)
+      for (int j = 0; j < gRows; j++)
+        if (inactiveSpots[i+1][j] == true && activeSpots[i][j] == true)
           return false;
-        }
-      }
-    }
+    
     return true;
   }
 
   ArrayList<Integer> removeRowNum() {
     int numTrue = 1;
-    //int removeRowNum = 0;
     ArrayList<Integer> rowsToRemove = new ArrayList<Integer>();
 
     for (int j = 0; j < gRows; j++) {
@@ -83,7 +76,6 @@ class Grid {
         if (inactiveSpots[i][j] == true) {
           numTrue++;
           if (numTrue == gColumns) {
-            println("REMOVING ROW: " + j);
             rowsToRemove.add(j);
           }
         }
@@ -92,12 +84,11 @@ class Grid {
     }
     return rowsToRemove;
   }
-
+  
   void rRemove(ArrayList<Integer> rowsToRemove) {
-    if (rowsToRemove != null)
-      for (int j = 0; j < rowsToRemove.size(); j++)
-        for (int i = 0; i < gColumns; i++)
-          inactiveSpots[i][rowsToRemove.get(j)] = false;
+    for (int j = 0; j < rowsToRemove.size(); j++)
+      for (int i = 0; i < gColumns; i++)
+        inactiveSpots[i][rowsToRemove.get(j)] = false;
 
     for (int k = 0; k < rowsToRemove.size(); k++)
       moveDown();
