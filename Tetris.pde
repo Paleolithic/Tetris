@@ -1,14 +1,13 @@
 Shape I, L, J, S, Z, O, T;
 
-Grid board = new Grid(25, 25, 22, 10);
+Grid board;
 Grid preview = new Grid(300, 25, 4, 4);
 Shape[] shapes;
 Shape current;
 Shape next;
 
 int savedTime;
-int totalTime = 300;
-int tempTime  = totalTime;
+int totalTime, tempTime;
 int offset_x, offset_y;
 int iterations;
 
@@ -16,22 +15,31 @@ int level;
 int score;
 
 boolean initial;
-final int MIN_X = 0;
-final int MIN_Y = 0;
-final int MAX_X = board.gColumns -1;
-final int MAX_Y = board.gRows - 1;
+int MIN_X, MIN_Y = 0;
+int MAX_X;
+int MAX_Y;
 
-boolean paused = false;
-
-ArrayList<Integer> currActiveColumns;
+boolean paused;
+boolean dead;
 
 void setup(){
   size(425,600);
+  
+  board = new Grid(25, 25, 22, 10);
+  preview = new Grid(300, 25, 4, 4);
+  
+  MAX_X = board.gColumns -1;
+  MAX_Y = board.gRows - 1;
   savedTime = millis();
+  totalTime = 300;
+  tempTime = totalTime;
+  
   iterations = 0;
   level = 1;
   
   initial = true;
+  paused = false;
+  dead = false;
   
   //Create shapes, add them to the array, and make new shape
   shapes = new Shape[7];
@@ -77,11 +85,16 @@ void draw(){
   board.display();
   preview.display(); 
   
+  if(board.isEndGame())
+    dead = true;
+    
   //If not paused, allow for gameplay, otherwise pause gameplay
-  if(!paused)
-    play();
-  else
+  if(paused)
     pause();
+  else if(dead)
+    gameOver();
+  else
+    play();
 }
 
 void play(){
@@ -134,7 +147,7 @@ void play(){
       board.rRemove(rowsToRemove);
     }
     newShape();
-  }  
+  }
 }
 
 //Pause game shows PAUSED screen
@@ -146,6 +159,16 @@ void pause(){
   text("PAUSED", width/2 - 45, height/2 - 10);
 }
 
+//Game over shows GAME OVER screen
+void gameOver(){
+  fill(175, 175);
+  rect(0,height/2 - 50, width, 60);
+  fill(0);
+  textSize(24);
+  text("GAME OVER! Press 'r' to restart", 60, height/2 - 10);  
+}
+
+//Sets grids active spots to false, for movement
 void setFalse(Grid grid){
   for(int i = 0; i < grid.gColumns; i++)
     for(int j=0; j< grid.gRows; j++)
@@ -190,4 +213,7 @@ void keyPressed(){
       paused = false;
     else
       paused = true;
+      
+  if(key == 'r' && dead == true)
+    setup();
 }

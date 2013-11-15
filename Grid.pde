@@ -115,5 +115,16 @@ class Grid {
       }
     }
   }
+  
+  boolean isEndGame(){
+    for(int i = 0; i < gColumns; i++)
+      if(inactiveSpots[i][0] == true)
+        return true; 
+    for(int i = 0; i < gColumns; i++)
+      for(int j = 0; j < gRows; j++)
+        if(inactiveSpots[i][j] == true && activeSpots[i][j] == true)
+          return true;
+    return false;
+  }
 }
 
